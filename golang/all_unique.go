@@ -1,6 +1,4 @@
-package main
-
-import "fmt"
+package kata
 
 func HasUniqueChar(str string) bool {
 	exists := map[byte]bool{}
@@ -11,8 +9,4 @@ func HasUniqueChar(str string) bool {
 		exists[str[i]] = true
 	}
 	return true
-}
-
-func main() {
-	fmt.Println(HasUniqueChar("abac"))
 }

@@ -1,6 +1,4 @@
-package main
-
-import "fmt"
+package kata
 
 func SplitStrings(str string) []string {
 	array := []string{}
@@ -19,8 +17,4 @@ func SplitStrings(str string) []string {
 	}
 
 	return array
-}
-
-func main() {
-	fmt.Println(SplitStrings("abfafda"))
 }

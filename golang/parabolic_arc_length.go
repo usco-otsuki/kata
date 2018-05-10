@@ -14,7 +14,7 @@ func LenCurve(n int) float64 {
 		y2 := x2 * x2
 		dx := x2 - x1
 		dy := y2 - y1
-		len += math.Sqrt(dx*dx + dy*dy)
+		len += math.Hypot(dx, dy)
 	}
 
 	return len

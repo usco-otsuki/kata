@@ -1,4 +1,4 @@
-package kata
+package parabolic_arc_length
 
 import (
 	"fmt"

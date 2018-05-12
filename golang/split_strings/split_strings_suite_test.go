@@ -1,4 +1,4 @@
-package kata_test
+package split_strings_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestGolang(t *testing.T) {
+func TestSplitStrings(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Kata Suite")
+	RunSpecs(t, "SplitStrings Suite")
 }

@@ -1,4 +1,4 @@
-package kata
+package all_unique
 
 func HasUniqueChar(str string) bool {
 	exists := map[byte]bool{}

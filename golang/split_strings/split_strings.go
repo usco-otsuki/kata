@@ -1,4 +1,4 @@
-package kata
+package split_strings
 
 func SplitStrings(str string) []string {
 	array := []string{}

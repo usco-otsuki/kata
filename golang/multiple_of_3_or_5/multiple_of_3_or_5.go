@@ -1,4 +1,4 @@
-package kata
+package multiple_of_3_or_5
 
 func Multiple3And5(number int) int {
 	sum := 0

@@ -1,6 +1,7 @@
-package kata
+package multiple_of_3_or_5_test
 
 import (
+	. "."
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

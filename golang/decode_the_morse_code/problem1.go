@@ -4,6 +4,8 @@ import (
 	"strings"
 )
 
+var MORSE_CODE map[string]string
+
 func DecodeMorse(morseCode string) string {
 	words := strings.Split(strings.TrimSpace(morseCode), "   ")
 	words_decoded := []string{}

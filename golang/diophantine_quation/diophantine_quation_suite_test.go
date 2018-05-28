@@ -1,0 +1,13 @@
+package diophantine_quation_test
+
+import (
+	"testing"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
+
+func TestDiophantineQuation(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "DiophantineQuation Suite")
+}

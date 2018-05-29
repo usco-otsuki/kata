@@ -1,4 +1,4 @@
-package diophantine_quation_test
+package diophantine_equation_test
 
 import (
 	"testing"

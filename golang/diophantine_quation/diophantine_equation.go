@@ -1,4 +1,4 @@
-package diophantine_quation
+package diophantine_equation
 
 func Solequa(n int) [][]int {
 	result := [][]int{}
@@ -19,14 +19,3 @@ func Solequa(n int) [][]int {
 	}
 	return result
 }
-
-/*
-(x - 2y)*(x+2y) = a * b = n
-x - 2y = a
-x + 2y = b
-
--4y = a - b => y = (b - a) / 4
-x = b + (a-b)/2 = (a + b) / 2
-
-x - 2y =
-*/

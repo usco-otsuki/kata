@@ -1,4 +1,4 @@
-package diophantine_quation
+package diophantine_equation
 
 import (
 	. "github.com/onsi/ginkgo"

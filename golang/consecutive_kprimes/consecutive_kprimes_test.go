@@ -10,10 +10,19 @@ func dotest(k int, arr []int, exp int) {
 	Expect(ans).To(Equal(exp))
 }
 
+var _ = Describe("isPrevKPrime", func() {
+
+	It("should handle basic cases", func() {
+		Expect(isKPrime(10, 2)).To(Equal(true))
+		Expect(isKPrime(16, 4)).To(Equal(true))
+		Expect(isKPrime(17, 2)).To(Equal(false))
+	})
+})
+
 var _ = Describe("Test Example", func() {
 
 	It("should handle basic cases", func() {
-		dotest(2, []int{10081, 10071, 10077, 10065, 10060, 10070, 10086, 10083, 10078, 10076, 10089, 10085, 10063, 10074, 10068, 10073, 10072, 10075}, 2)
+		// dotest(2, []int{10081, 10071, 10077, 10065, 10060, 10070, 10086, 10083, 10078, 10076, 10089, 10085, 10063, 10074, 10068, 10073, 10072, 10075}, 2)
 		dotest(6, []int{10064}, 0)
 		dotest(1, []int{10054, 10039, 10053, 10051, 10047, 10043, 10037, 10034}, 0)
 		dotest(3, []int{10158, 10182, 10184, 10172, 10179, 10168, 10156, 10165, 10155, 10161, 10178, 10170}, 5)

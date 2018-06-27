@@ -1,74 +1,64 @@
 package integer_partitions
 
 import (
+	"fmt"
 	"sort"
 )
 
-type Partitions [][]int
-
-func (p Partitions) Len() int {
-	return len(p)
-}
-
-func (p Partitions) Swap(i, j int) {
-	p[i], p[j] = p[j], p[i]
-}
-
-func (p Partitions) Less(i, j int) bool {
-	a, b := p[i], p[j]
-	n := len(b)
-	if len(a) < len(b) {
-		n = len(a)
-	}
-	for i := 0; i < n; i++ {
-		if a[i] < b[i] {
-			return false
-		} else if a[i] > b[i] {
-			return true
-		}
-	}
-	return true // true of false does not matter in this specifi problem
-}
-
-func IntSliceEqual(a, b []int) bool {
-	if len(a) != len(b) {
-		return false
-	}
-
-	for i := 0; i < len(a); i++ {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
+var cache = map[int][][]int{1: {{1}}}
 
 func EnumPart(n int) [][]int {
-	parts := Partitions{{n}}
-	for i := 1; i <= n>>1; i++ {
-		first := EnumPart(i)
-		second := EnumPart(n - i)
-		for _, val1 := range second {
-			for _, val2 := range first {
-				concat := append(val1, val2...)
-				sort.Sort(sort.Reverse(sort.IntSlice(concat)))
-				parts = append(parts, concat)
+	if val, ok := cache[n]; ok {
+		return val
+	}
+
+	parts := [][]int{{n}}
+	for i := 1; i < n; i++ {
+		for _, val := range EnumPart(i) {
+			if val[0] <= n-i {
+				parts = append(parts, append([]int{n - i}, val...))
 			}
 		}
 	}
-	sort.Sort(parts)
-	result := Partitions{parts[0]}
-	for i := 1; i < len(parts); i++ {
-		val1 := result[len(result)-1]
-		val2 := parts[i]
-		if !IntSliceEqual(val1, val2) {
-			result = append(result, val2)
+	cache[n] = parts
+	return parts
+}
+
+func Prod(parts [][]int) []int {
+	exists := map[int]bool{}
+	newParts := []int{}
+	for _, part := range parts {
+		val := 1
+		for _, num := range part {
+			val *= num
+		}
+		if _, ok := exists[val]; !ok {
+			exists[val] = true
+			newParts = append(newParts, val)
 		}
 	}
-	return result
+	sort.Ints(newParts)
+	return newParts
+}
+
+func Average(a []int) float64 {
+	sum := 0.0
+	for _, val := range a {
+		sum += float64(val)
+	}
+	return sum / float64(len(a))
+}
+
+func Median(a []int) float64 {
+	n := len(a)
+	if n%2 == 0 {
+		return (float64(a[n>>1]) + float64(a[n>>1-1])) / 2
+	} else {
+		return float64(a[n>>1])
+	}
 }
 
 func Part(n int) string {
-	// your code
-	return ""
+	values := Prod(EnumPart(n))
+	return fmt.Sprintf("Range: %d Average: %.2f Median: %.2f", values[len(values)-1]-values[0], Average(values), Median(values))
 }

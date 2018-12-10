@@ -1,20 +1,34 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"io"
-	"regexp"
+	"os"
 )
 
+type coordinate struct {
+	x, y int
+}
+
 func main() {
-	re := regexp.MustCompile(`#\d+ @ (\d+),(\d+): (\d+)x(\d+)`)
-	var line string
-	for {
-		_, err := fmt.Scanln(&line)
-		if err == io.EOF {
-			matches := r.FindStringSubmatch(line)
-			break
+	scanner := bufio.NewScanner(os.Stdin)
+	m := make(map[coordinate]int)
+	var id, x, y, w, h int
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Sscanf(line, "#%d @ %d,%d: %dx%d", &id, &x, &y, &w, &h)
+		var _ = id
+		for i := 0; i < w; i++ {
+			for j := 0; j < h; j++ {
+				m[coordinate{x + i, y + j}]++
+			}
 		}
-		x, y, w, h := matches[1:]
 	}
+	sum := 0
+	for _, count := range m {
+		if count > 1 {
+			sum++
+		}
+	}
+	fmt.Println(sum)
 }

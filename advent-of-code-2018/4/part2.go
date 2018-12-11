@@ -9,10 +9,6 @@ import (
 	"sort"
 )
 
-type duration struct {
-	start, end int
-}
-
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	lines := []string{}

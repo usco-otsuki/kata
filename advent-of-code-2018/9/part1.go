@@ -13,17 +13,14 @@ func main() {
 	fmt.Sscanf(scanner.Text(), "%d players; last marble is worth %d points", &n, &last)
 	scores := make(map[int]int)
 	currentScore := -1
-	currentMarble := 2
 	currentIndex := 1
 	marbles := []int{0, 1}
-	for currentScore != last {
-		fmt.Println(marbles)
+	for currentMarble := 2; currentMarble < last; currentMarble++ {
 		if currentMarble%23 == 0 {
 			removeIndex := (currentIndex + len(marbles) - 7) % len(marbles)
 			currentScore = currentMarble + marbles[removeIndex]
 			scores[currentMarble%n] += currentScore
 			marbles = append(marbles[:removeIndex], marbles[removeIndex+1:]...)
-			currentMarble++
 			currentIndex = removeIndex
 			continue
 		}
@@ -35,7 +32,6 @@ func main() {
 		}
 		currentIndex = newIndex
 		currentScore = 0
-		currentMarble++
 	}
 	maxScore := 0
 	for _, score := range scores {

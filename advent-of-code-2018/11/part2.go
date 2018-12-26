@@ -47,7 +47,7 @@ func main() {
 		pM := m[(size-1)%2] // prev M
 		for i := 1; i <= SIZE-size+1; i++ {
 			for j := 1; j <= SIZE; j++ {
-				curM[point{i, j}] = pM[point{i, j}] + m1[point{i, j + size - 1}]
+				curM[point{i, j}] = pM[point{i, j}] + m1[point{i + size - 1, j}]
 			}
 		}
 		for i := 1; i <= SIZE-size; i++ {
@@ -70,6 +70,5 @@ func main() {
 			}
 		}
 	}
-	fmt.Println(maxStrip)
 	fmt.Print(maxPoint, maxSize, maxPower)
 }

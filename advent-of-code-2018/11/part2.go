@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-const SIZE = 100
+const SIZE = 300
 
 type point struct {
 	x, y int
@@ -21,7 +21,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	m := [3]map[point]int{make(map[point]int), make(map[point]int), make(map[point]int)}
+	var maxPoint point
+	maxPower := 0
+	maxSize := 1
+	m := [2]map[point]int{make(map[point]int), make(map[point]int)}
 	m1 := make(map[point]int)
 	for i := 1; i <= SIZE; i++ {
 		for j := 1; j <= SIZE; j++ {
@@ -30,21 +33,36 @@ func main() {
 			power -= 5
 			m[1][point{i, j}] = power
 			m1[point{i, j}] = power
+			if maxPower < power {
+				maxPower = power
+				maxPoint = point{i, j}
+			}
+			// fmt.Printf("%d ", power)
 		}
+		// fmt.Println()
 	}
-	var maxPoint point
-	maxPower := 0
-	maxSize := 0
 	for size := 2; size <= SIZE; size++ {
-		m[size%3] = make(map[point]int)
-		pM := m[(size-1)%3]  // prev M
-		ppM := m[(size-2)%3] // prev prev M
+		m[size%2] = make(map[point]int)
+		curM := m[size%2]
+		pM := m[(size-1)%2] // prev M
+		for i := 1; i <= SIZE-size+1; i++ {
+			for j := 1; j <= SIZE; j++ {
+				curM[point{i, j}] = pM[point{i, j}] + m1[point{i, j + size - 1}]
+			}
+		}
 		for i := 1; i <= SIZE-size; i++ {
-			for j := 1; j <= SIZE-size; j++ {
-				power := pM[point{i, j}] + pM[point{i + 1, j}] + pM[point{i, j + 1}] + pM[point{i + 1, j + 1}] -
-					(ppM[point{i + 1, j + 1}] + ppM[point{i + 1, j}] + ppM[point{i, j + 1}] + ppM[point{i + SIZE - size, j + 1}] + ppM[point{i + 1, j + SIZE - size}])
-				m[size%3][point{i, j}] = power
-				if power > maxPower {
+			power := 0
+			for j := 1; j <= size; j++ {
+				power += curM[point{i, j}]
+			}
+			if maxPower < power {
+				maxPower = power
+				maxPoint = point{i, 1}
+				maxSize = size
+			}
+			for j := 2; j <= SIZE-size; j++ {
+				power = power + curM[point{i, j + size - 1}] - curM[point{i, j - 1}]
+				if maxPower < power {
 					maxPoint = point{i, j}
 					maxPower = power
 					maxSize = size
@@ -52,11 +70,6 @@ func main() {
 			}
 		}
 	}
+	fmt.Println(maxStrip)
 	fmt.Print(maxPoint, maxSize, maxPower)
 }
-
-// *****
-// *****
-// *****
-// *****
-// *****

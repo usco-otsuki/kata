@@ -14,7 +14,7 @@ type note struct {
 
 // const NUM_GEN = 50000000000
 
-const NUM_GEN = 200
+const NUM_GEN = 10000
 
 func AddDots(state []byte) ([]byte, int) {
 	newState := []byte{}
@@ -96,12 +96,14 @@ func main() {
 		}
 		prevState = state
 		sum := 0
+		counter := 0
 		for l, c := range state {
 			if c == '#' {
 				sum += shift + l
+				counter++
 			}
 		}
-		fmt.Println(i+1, sum, shift, string(state))
+		fmt.Println(i+1, sum, counter, shift, string(state))
 		// fmt.Println(i+1, sum)
 
 	}

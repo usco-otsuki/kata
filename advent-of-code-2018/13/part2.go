@@ -13,6 +13,7 @@ type Point struct {
 
 type Cart struct {
 	point      Point
+	activated  bool
 	direction  byte
 	interCount int
 }
@@ -46,19 +47,33 @@ func PrintMap(track map[Point]byte, carts Carts, row, column int) {
 	fmt.Println()
 }
 
+func findCollision(carts *Carts) (*Cart, *Cart) {
+	cartPos := make(map[Point]*Cart)
+	for i := 0; i < len(*carts); i++ {
+		cart := &((*carts)[i])
+		if !cart.activated {
+			continue
+		}
+		if c, ok := cartPos[cart.point]; ok {
+			return cart, c
+		}
+		cartPos[cart.point] = cart
+	}
+	return nil, nil
+}
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	row := 0
 	column := 0
 	m := make(map[Point]byte)
 	carts := Carts{}
-	cartPos := make(map[Point][]*Cart)
 	for scanner.Scan() {
 		line := scanner.Text()
 		for column = 0; column < len(line); column++ {
 			ch := line[column]
 			if ch == '<' || ch == '>' || ch == '^' || ch == 'v' {
-				carts = append(carts, Cart{Point{row, column}, ch, 0})
+				carts = append(carts, Cart{Point{row, column}, true, ch, 0})
 				if ch == '<' || ch == '>' {
 					m[Point{row, column}] = '-'
 				} else {
@@ -70,15 +85,14 @@ func main() {
 		}
 		row++
 	}
-	for t := 0; ; t++ {
-		// if t%1000 == 0 {
-		// 	PrintMap(m, carts, row, column)
-		// }
+	for {
 		sort.Sort(carts)
-		cartPos = make(map[Point][]*Cart)
 		newCarts := Carts{}
 		for i := 0; i < len(carts); i++ {
 			cart := &carts[i]
+			if !cart.activated {
+				continue
+			}
 			p := cart.point
 			switch cart.direction {
 			case '<':
@@ -146,16 +160,15 @@ func main() {
 				case '\\':
 					cart.direction = '>'
 				}
-
 			}
-			if _, ok := cartPos[cart.point]; !ok {
-				cartPos[cart.point] = []*Cart{}
+			if c1, c2 := findCollision(&carts); c1 != nil && c2 != nil {
+				c1.activated = false
+				c2.activated = false
 			}
-			cartPos[cart.point] = append(cartPos[cart.point], cart)
 		}
-		for _, value := range cartPos {
-			if len(value) == 1 {
-				newCarts = append(newCarts, *(value[0]))
+		for _, cart := range carts {
+			if cart.activated {
+				newCarts = append(newCarts, cart)
 			}
 		}
 		carts = newCarts

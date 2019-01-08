@@ -126,7 +126,7 @@ if __name__ == "__main__":
     field = Field(field_list)
 
     round = 0
-    for i in range(100):
+    while True:
         if field.process_round(): # not full round
             sum_hp = field.get_sum_hp()
             result = sum_hp * round

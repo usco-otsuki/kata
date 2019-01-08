@@ -50,15 +50,19 @@ class Unit:
         field = self.field.field
         prev = {(self.x, self.y): (self.x, self.y)}
         visited = defaultdict(bool)
+        visited[(self.x, self.y)] = True
         queue = deque([(self.x, self.y)])
         target = None
         while len(queue) > 0:
             cur = queue.pop()
-            visited[cur] = True
             for dx, dy in self.reading_order:
                 x, y = cur[0] + dx, cur[1] + dy
                 place = field[x][y]
-                if not visited[(x, y)] and place == "." :
+                if visited[(x, y)]:
+                    continue
+
+                if place == "." :
+                    visited[(x, y)] = True
                     queue.appendleft((x, y))
                     if (x, y) not in prev:
                         prev[(x, y)] = cur

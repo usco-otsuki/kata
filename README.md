@@ -1,3 +1,3 @@
 # Kata
 
-Solutions to CodeWars kata.
+Solutions to competitive programing problems

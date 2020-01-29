@@ -1,7 +1,7 @@
 using System;
 using Xunit;
 
-public class UnitTest1
+public class WhoLikesItTest 
 {
     [Fact]
     public void Test1()

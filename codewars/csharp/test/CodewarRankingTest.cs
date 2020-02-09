@@ -54,7 +54,6 @@ public class CodewarRaningTest
         foreach (var element in path)
         {
             user.incProgress(element.rank);
-            // System.Console.WriteLine($"{user.progress} {user.rank}");
             Assert.Equal(element.expProg, user.progress);
             Assert.Equal(element.expRank, user.rank);
         }

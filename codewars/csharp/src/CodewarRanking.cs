@@ -74,13 +74,10 @@ namespace CodewarRanking
             {
                 progress += 1;
             }
-            System.Console.WriteLine("=========");
-            System.Console.WriteLine(progress + " " + this.rank);
             while (progress >= 100 && this.rank <= 7)
             {
                 this.rank = this._rank + 1;
                 progress -= 100;
-                System.Console.WriteLine("reduced " + progress + " " + this.rank);
             }
         }
     }

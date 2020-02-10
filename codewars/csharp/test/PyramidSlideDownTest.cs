@@ -26,4 +26,11 @@ public class PyramidSlideDownTest
 
         Assert.Equal(1074, PyramidSlideDown.LongestSlideDown(mediumPyramid));
     }
+
+    [Fact]
+    public void Test2()
+    {
+        var pyramid = new[] { new[] { 3 }, new[] { 7, 4 }, new[] { 2, 4, 6 }, new[] { 8, 5, 9, 3 } };
+        Assert.Equal(23, PyramidSlideDown.LongestSlideDown(pyramid));
+    }
 }

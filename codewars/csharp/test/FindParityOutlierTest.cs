@@ -3,6 +3,7 @@ using Xunit;
 
 public class FindParityOutlierTest
 {
+    [Fact]
     public static void Test1()
     {
         int[] exampleTest1 = { 2, 6, 8, -10, 3 };

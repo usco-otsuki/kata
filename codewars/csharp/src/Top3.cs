@@ -16,11 +16,3 @@ public class TopWords
         return list.GroupBy(w => w).OrderByDescending(g => g.Count()).Take(3).Select(g => g.Key).ToList();
     }
 }
-
-    //     return Regex.Matches(s.ToLowerInvariant(), @"('*[a-z]'*)+")
-    //         .GroupBy(match => match.Value)
-    //         .OrderByDescending(g => g.Count())
-    //         .Select(p => p.Key)
-    //         .Take(3)
-    //         .ToList();
-    // }

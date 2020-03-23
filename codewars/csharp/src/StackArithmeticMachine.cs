@@ -52,10 +52,20 @@ namespace StaticArithmeticMachine
                 this.cpu = cpu;
             }
 
-            private bool isInteger(string str)
+            private bool isNonNegativeInteger(string str)
             {
                 int num;
-                return int.TryParse(str, out num);
+                bool parseable = int.TryParse(str, out num);
+                if (!parseable)
+                {
+                    return false;
+                }
+                return num >= 0;
+            }
+
+            private bool isRegister(string str)
+            {
+                return new[] { "a", "b", "c", "d" }.Contains(str);
             }
 
             public void Exec(string op)
@@ -66,13 +76,20 @@ namespace StaticArithmeticMachine
                 switch (cmd)
                 {
                     case "push":
-                        if (isInteger(args[0]))
+                        if (isNonNegativeInteger(args[0]))
                         {
                             int val = int.Parse(args[0]);
                             cpu.WriteStack(val);
                             return;
                         }
-                        cpu.WriteStack(cpu.ReadReg(args[0]));
+                        else if (isRegister(args[0]))
+                        {
+                            cpu.WriteStack(cpu.ReadReg(args[0]));
+                        }
+                        else
+                        {
+                            throw new ArgumentException();
+                        }
                         return;
                     case "pop":
                         {
@@ -108,15 +125,90 @@ namespace StaticArithmeticMachine
                         cpu.WriteReg("d", cpu.PopStack());
                         return;
                     case "mov":
-                        if (isInteger(args[0]))
+                        if (isNonNegativeInteger(args[0]))
                         {
                             int val = int.Parse(args[0]);
                             cpu.WriteReg(args[1], val);
                             return;
                         }
-                        cpu.WriteReg(args[0], 0); // is this needed?
-                        cpu.WriteReg(args[1], cpu.ReadReg(args[0]));
+                        else if (isRegister(args[0]))
+                        {
+                            cpu.WriteReg(args[0], 0); // is this needed?
+                            cpu.WriteReg(args[1], cpu.ReadReg(args[0]));
+                        }
+                        else
+                        {
+                            throw new ArgumentException();
+                        }
                         return;
+                    case "add":
+                    case "sub":
+                    case "mul":
+                    case "div":
+                    case "and":
+                    case "or":
+                    case "xor":
+                        int calcResult = 0;
+                        if (args.Length == 0)
+                        {
+                            throw new ArgumentException();
+                        }
+                        var operands = new List<int>();
+                        if (isNonNegativeInteger(args[0]) || isRegister(args[0]))
+                        {
+                            int val;
+                            if (isNonNegativeInteger(args[0]))
+                            {
+                                val = int.Parse(args[0]);
+                            }
+                            else
+                            {
+                                val = cpu.ReadReg(args[0]);
+                            }
+                            for (int i = 0; i < val; i++)
+                            {
+                                operands.Add(cpu.PopStack());
+                            }
+                        }
+                        else
+                        {
+                            throw new ArgumentException();
+                        }
+                        switch (cmd)
+                        {
+                            case "add":
+                                calcResult = operands.Aggregate(0, (acc, x) => acc + x);
+                                break;
+                            case "sub":
+                                calcResult = operands.Aggregate(0, (acc, x) => acc - x);
+                                break;
+                            case "mul":
+                                calcResult = operands.Aggregate(1, (acc, x) => acc * x);
+                                break;
+                            case "div":
+                                calcResult = operands.Skip(1).Aggregate(operands.First(), (acc, x) => acc / x);
+                                break;
+                            case "and":
+                                calcResult = operands.Aggregate(1, (acc, x) => acc & x);
+                                break;
+                            case "or":
+                                calcResult = operands.Aggregate(0, (acc, x) => acc | x);
+                                break;
+                            case "xor":
+                                calcResult = operands.Skip(1).Aggregate(operands.First(), (acc, x) => acc ^ x);
+                                break;
+                        }
+                        if (args.Length == 1)
+                        {
+                            cpu.WriteReg("a", calcResult);
+                            return;
+                        }
+                        else if (args.Length == 2 && isRegister(args[1]))
+                        {
+                            cpu.WriteReg(args[1], calcResult);
+                            return;
+                        }
+                        throw new ArgumentException();
                 }
 
             }

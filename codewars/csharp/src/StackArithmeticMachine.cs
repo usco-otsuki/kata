@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
-namespace StaticArithmeticMachine
+
+namespace StackArithmeticMachine
 {
     public class Cpu
     {
@@ -42,176 +44,206 @@ namespace StaticArithmeticMachine
                 Console.WriteLine(val);
             }
         }
+    }
 
-        public class Machine
+    public class Machine
+    {
+        private Cpu cpu;
+
+        public Machine(Cpu cpu = null)
         {
-            private Cpu cpu;
+            this.cpu = cpu;
+        }
 
-            public Machine(Cpu cpu = null)
+        private bool isNonNegativeInteger(string str)
+        {
+            int num;
+            bool parseable = int.TryParse(str, out num);
+            if (!parseable)
             {
-                this.cpu = cpu;
+                return false;
             }
+            return num >= 0;
+        }
 
-            private bool isNonNegativeInteger(string str)
+        private bool isRegister(string str)
+        {
+            return new[] { "a", "b", "c", "d" }.Contains(str);
+        }
+
+        private void execArithmeticOperation(string cmd, string[] args, string register = null)
+        {
+            int calcResult = 0;
+            if (args.Length == 0)
             {
-                int num;
-                bool parseable = int.TryParse(str, out num);
-                if (!parseable)
+                throw new ArgumentException();
+            }
+            if (register != null)
+            {
+                if (!isRegister(register))
                 {
-                    return false;
+                    throw new ArgumentException();
                 }
-                return num >= 0;
+                cpu.WriteStack(cpu.ReadReg(register));
             }
-
-            private bool isRegister(string str)
+            var operands = new List<int>();
+            if (isNonNegativeInteger(args[0]) || isRegister(args[0]))
             {
-                return new[] { "a", "b", "c", "d" }.Contains(str);
-            }
-
-            public void Exec(string op)
-            {
-                var tokens = op.Split(new char[] { ' ' });
-                string cmd = tokens[0];
-                string[] args = tokens.Skip(1).ToArray();
-                switch (cmd)
+                int val;
+                if (isNonNegativeInteger(args[0]))
                 {
-                    case "push":
-                        if (isNonNegativeInteger(args[0]))
-                        {
-                            int val = int.Parse(args[0]);
-                            cpu.WriteStack(val);
-                            return;
-                        }
-                        else if (isRegister(args[0]))
-                        {
-                            cpu.WriteStack(cpu.ReadReg(args[0]));
-                        }
-                        else
-                        {
-                            throw new ArgumentException();
-                        }
+                    val = int.Parse(args[0]);
+                }
+                else
+                {
+                    val = cpu.ReadReg(args[0]);
+                }
+                for (int i = 0; i < val; i++)
+                {
+                    operands.Add(cpu.PopStack());
+                }
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+            switch (cmd)
+            {
+                case "add":
+                    calcResult = operands.Aggregate(0, (acc, x) => acc + x);
+                    break;
+                case "sub":
+                    calcResult = operands.Skip(1).Aggregate(operands.First(), (acc, x) => acc - x);
+                    break;
+                case "mul":
+                    calcResult = operands.Aggregate(1, (acc, x) => acc * x);
+                    break;
+                case "div":
+                    calcResult = operands.Skip(1).Aggregate(operands.First(), (acc, x) => acc / x);
+                    break;
+                case "and":
+                    calcResult = operands.Aggregate(~0, (acc, x) => acc & x);
+                    break;
+                case "or":
+                    calcResult = operands.Aggregate(0, (acc, x) => acc | x);
+                    break;
+                case "xor":
+                    calcResult = operands.Skip(1).Aggregate(operands.First(), (acc, x) => acc ^ x);
+                    break;
+            }
+            if (args.Length == 1)
+            {
+                if (register == null)
+                {
+                    register = "a";
+                }
+                cpu.WriteReg(register, calcResult);
+                return;
+            }
+            else if (args.Length == 2 && isRegister(args[1]))
+            {
+                cpu.WriteReg(args[1], calcResult);
+                return;
+            }
+            throw new ArgumentException();
+        }
+
+        public void Exec(string op)
+        {
+            var tokens = op.Split(new char[] { ' ' });
+            string cmd = tokens[0];
+            string[] args = tokens.Skip(1).ToArray();
+            if (args.Length > 0 && args[0].Last() == ',') {
+                args[0] = new string(args[0].Take(args[0].Length - 1).ToArray());
+            }
+            switch (cmd)
+            {
+                case "push":
+                    if (isNonNegativeInteger(args[0]))
+                    {
+                        int val = int.Parse(args[0]);
+                        cpu.WriteStack(val);
                         return;
-                    case "pop":
-                        {
-                            int val = cpu.PopStack();
-                            if (args.Length > 0)
-                            {
-                                cpu.WriteReg(args[0], val);
-                            }
-                            return;
-                        }
-                    case "pushr":
-                        cpu.WriteStack(cpu.ReadReg("a"));
-                        cpu.WriteStack(cpu.ReadReg("b"));
-                        cpu.WriteStack(cpu.ReadReg("c"));
-                        cpu.WriteStack(cpu.ReadReg("d"));
-                        return;
-                    case "pushrr":
-                        cpu.WriteStack(cpu.ReadReg("d"));
-                        cpu.WriteStack(cpu.ReadReg("c"));
-                        cpu.WriteStack(cpu.ReadReg("b"));
-                        cpu.WriteStack(cpu.ReadReg("a"));
-                        return;
-                    case "popr":
-                        cpu.WriteReg("d", cpu.PopStack());
-                        cpu.WriteReg("c", cpu.PopStack());
-                        cpu.WriteReg("b", cpu.PopStack());
-                        cpu.WriteReg("a", cpu.PopStack());
-                        return;
-                    case "poprr":
-                        cpu.WriteReg("a", cpu.PopStack());
-                        cpu.WriteReg("b", cpu.PopStack());
-                        cpu.WriteReg("c", cpu.PopStack());
-                        cpu.WriteReg("d", cpu.PopStack());
-                        return;
-                    case "mov":
-                        if (isNonNegativeInteger(args[0]))
-                        {
-                            int val = int.Parse(args[0]);
-                            cpu.WriteReg(args[1], val);
-                            return;
-                        }
-                        else if (isRegister(args[0]))
-                        {
-                            cpu.WriteReg(args[0], 0); // is this needed?
-                            cpu.WriteReg(args[1], cpu.ReadReg(args[0]));
-                        }
-                        else
-                        {
-                            throw new ArgumentException();
-                        }
-                        return;
-                    case "add":
-                    case "sub":
-                    case "mul":
-                    case "div":
-                    case "and":
-                    case "or":
-                    case "xor":
-                        int calcResult = 0;
-                        if (args.Length == 0)
-                        {
-                            throw new ArgumentException();
-                        }
-                        var operands = new List<int>();
-                        if (isNonNegativeInteger(args[0]) || isRegister(args[0]))
-                        {
-                            int val;
-                            if (isNonNegativeInteger(args[0]))
-                            {
-                                val = int.Parse(args[0]);
-                            }
-                            else
-                            {
-                                val = cpu.ReadReg(args[0]);
-                            }
-                            for (int i = 0; i < val; i++)
-                            {
-                                operands.Add(cpu.PopStack());
-                            }
-                        }
-                        else
-                        {
-                            throw new ArgumentException();
-                        }
-                        switch (cmd)
-                        {
-                            case "add":
-                                calcResult = operands.Aggregate(0, (acc, x) => acc + x);
-                                break;
-                            case "sub":
-                                calcResult = operands.Aggregate(0, (acc, x) => acc - x);
-                                break;
-                            case "mul":
-                                calcResult = operands.Aggregate(1, (acc, x) => acc * x);
-                                break;
-                            case "div":
-                                calcResult = operands.Skip(1).Aggregate(operands.First(), (acc, x) => acc / x);
-                                break;
-                            case "and":
-                                calcResult = operands.Aggregate(1, (acc, x) => acc & x);
-                                break;
-                            case "or":
-                                calcResult = operands.Aggregate(0, (acc, x) => acc | x);
-                                break;
-                            case "xor":
-                                calcResult = operands.Skip(1).Aggregate(operands.First(), (acc, x) => acc ^ x);
-                                break;
-                        }
-                        if (args.Length == 1)
-                        {
-                            cpu.WriteReg("a", calcResult);
-                            return;
-                        }
-                        else if (args.Length == 2 && isRegister(args[1]))
-                        {
-                            cpu.WriteReg(args[1], calcResult);
-                            return;
-                        }
+                    }
+                    else if (isRegister(args[0]))
+                    {
+                        cpu.WriteStack(cpu.ReadReg(args[0]));
+                    }
+                    else
+                    {
                         throw new ArgumentException();
-                }
-
+                    }
+                    return;
+                case "pop":
+                    {
+                        int val = cpu.PopStack();
+                        if (args.Length > 0)
+                        {
+                            cpu.WriteReg(args[0], val);
+                        }
+                        return;
+                    }
+                case "pushr":
+                    cpu.WriteStack(cpu.ReadReg("a"));
+                    cpu.WriteStack(cpu.ReadReg("b"));
+                    cpu.WriteStack(cpu.ReadReg("c"));
+                    cpu.WriteStack(cpu.ReadReg("d"));
+                    return;
+                case "pushrr":
+                    cpu.WriteStack(cpu.ReadReg("d"));
+                    cpu.WriteStack(cpu.ReadReg("c"));
+                    cpu.WriteStack(cpu.ReadReg("b"));
+                    cpu.WriteStack(cpu.ReadReg("a"));
+                    return;
+                case "popr":
+                    cpu.WriteReg("d", cpu.PopStack());
+                    cpu.WriteReg("c", cpu.PopStack());
+                    cpu.WriteReg("b", cpu.PopStack());
+                    cpu.WriteReg("a", cpu.PopStack());
+                    return;
+                case "poprr":
+                    cpu.WriteReg("a", cpu.PopStack());
+                    cpu.WriteReg("b", cpu.PopStack());
+                    cpu.WriteReg("c", cpu.PopStack());
+                    cpu.WriteReg("d", cpu.PopStack());
+                    return;
+                case "mov":
+                    if (isNonNegativeInteger(args[0]))
+                    {
+                        int val = int.Parse(args[0]);
+                        cpu.WriteReg(args[1], val);
+                        return;
+                    }
+                    else if (isRegister(args[0]))
+                    {
+                        cpu.WriteReg(args[1], cpu.ReadReg(args[0]));
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"{args[0]} is not a proper argument");
+                    }
+                    return;
+                case "add":
+                case "sub":
+                case "mul":
+                case "div":
+                case "and":
+                case "or":
+                case "xor":
+                    execArithmeticOperation(cmd, args);
+                    break;
+                default:
+                    Match match = Regex.Match(cmd, @"(?<word>add|sub|mul|div|and|or|xor)(?<reg>[a-d])");
+                    if (!match.Success)
+                    {
+                        throw new ArgumentException();
+                    }
+                    string baseCommand = match.Groups["word"].Value;
+                    string register = match.Groups["reg"].Value;
+                    execArithmeticOperation(baseCommand, args, register);
+                    break;
             }
+
         }
     }
 }

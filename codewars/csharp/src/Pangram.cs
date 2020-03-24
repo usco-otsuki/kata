@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Pangram
 {
-    public static class Kata
+    public static class Solution
     {
         public static bool IsPangram(string str)
         {

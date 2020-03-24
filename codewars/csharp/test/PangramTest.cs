@@ -7,7 +7,7 @@ namespace Pangram
     [Fact]
     public void SampleTests() 
     {
-      Assert.Equal(true, Kata.IsPangram("The quick brown fox jumps over the lazy dog."));
+      Assert.Equal(true, Solution.IsPangram("The quick brown fox jumps over the lazy dog."));
     }
   }
 }

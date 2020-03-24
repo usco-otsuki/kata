@@ -15,7 +15,7 @@ namespace SortBinaryTreeByLevel
             Value = v;
         }
     }
-    public class Kata
+    public class Solution
     {
         public static List<int> TreeByLevels(Node root)
         {
